@@ -7,6 +7,7 @@ import Checkout from "../checkout/Checkout";
 import AboutUs from "../about/AboutUs";
 import ContactUs from "../contact/ContactUs";
 import ErrorPage from "../error/ErrorPage";
+import OrderSummary from "../order-summary/OrderSummary";
 
 const Home = () => {
     return (
@@ -44,6 +45,13 @@ const Home = () => {
                     <ShoppingContext>
                         <Navbar/>
                         <Checkout/>
+                    </ShoppingContext>
+                }/>
+
+                <Route exact path="/order-summary" render={() =>
+                    <ShoppingContext>
+                        <Navbar/>
+                        <OrderSummary/>
                     </ShoppingContext>
                 }/>
 

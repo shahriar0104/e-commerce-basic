@@ -5,16 +5,13 @@ import ShoppingCart from "../shopping-cart/ShoppingCart";
 import {ShoppingListContext} from "../../context/ShoppingContext";
 import useCartHelper from "../../hooks/useCartHelper";
 import {Link} from "react-router-dom";
+import classNames from "../../helper/ClassNameJoiner";
 
 const navigationItems = [
     {name: 'Products', href: '#', path: '/', current: true},
     {name: 'About', href: '#', path: '/about', current: false},
     {name: 'Contact', href: '#', path: '/contact', current: false},
 ]
-
-const classNames = (...classes) => {
-    return classes.filter(Boolean).join(' ')
-}
 
 const Navbar = () => {
     const {openModal, setOpenModal} = useContext(ShoppingListContext);
@@ -56,6 +53,7 @@ const Navbar = () => {
                                         alt="DSI-E.com"
                                     />
                                 </Link>
+
                                 <div className="hidden sm:block sm:ml-6">
                                     <div className="flex space-x-4">
                                         {navigation.map((item) => (

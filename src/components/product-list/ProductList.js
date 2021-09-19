@@ -3,10 +3,7 @@ import {ShoppingListContext} from "../../context/ShoppingContext";
 import {MinusIcon, PlusIcon} from "@heroicons/react/outline";
 import useCartHelper from "../../hooks/useCartHelper";
 import {Link} from "react-router-dom";
-
-function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
-}
+import classNames from "../../helper/ClassNameJoiner";
 
 const ProductList = () => {
     const {productList, setProductList} = useContext(ShoppingListContext);
@@ -33,21 +30,21 @@ const ProductList = () => {
 
                 <div className="mt-2 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
                     {productList.map((product) => (
-                        <div key={product.id} className="bg-white p-4 shadow-lg rounded-lg">
+                        <div key={product.id} className="flex flex-col bg-white p-4 shadow-lg rounded-lg">
                             <Link to={`/product/${product.id}`}>
                                 <div className="w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden
                                                 hover:opacity-75 cursor-pointer lg:h-80 lg:aspect-none">
                                     <img
                                         src={product.image}
                                         alt="Not Found"
-                                        className="w-full h-full object-center object-cover"
+                                        className="w-full h-full object-center object-fill"
                                     />
                                 </div>
                             </Link>
                             <div>
                                 <h3 className="text-base font-medium text-gray-900">{product.title}</h3>
                             </div>
-                            <div className="mt-4 flex justify-between">
+                            <div className="my-4 flex justify-between">
                                 <p className="text-sm font-medium text-gray-900">${product.price}</p>
                                 <p className="text-sm font-medium text-gray-900">
                                     <span><i className="fa fa-star"/></span>
@@ -57,7 +54,7 @@ const ProductList = () => {
 
                             {
                                 product.rating['count'] <= 0 ?
-                                    (<div className="mt-4">
+                                    (<div className="mt-auto">
                                         <button
                                             disabled
                                             className="flex justify-center items-center px-6 py-2 border border-transparent
@@ -69,7 +66,7 @@ const ProductList = () => {
 
                                     (
                                         !isItemPresentInCart(product.id) ?
-                                            (<div className="mt-4">
+                                            (<div className="mt-auto">
                                                 <button
                                                     onClick={() => updateCart(product, false, true)}
                                                     className="flex justify-center items-center px-6 py-2 border border-transparent
@@ -79,7 +76,7 @@ const ProductList = () => {
                                                 </button>
                                             </div>) :
 
-                                            (<div className="mt-4">
+                                            (<div className="mt-auto">
                                                 <div className="flex justify-center items-center px-4 py-1 border border-transparent
                                             rounded-md shadow-sm text-base font-medium text-gray-900 bg-gray-100">
                                             <button className="bg-indigo-700 text-white p-2 rounded-lg shadow-sm cursor-pointer"

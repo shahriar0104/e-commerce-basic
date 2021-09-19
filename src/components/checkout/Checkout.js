@@ -1,8 +1,9 @@
-import {useContext, useState} from "react";
+import {useContext, useRef, useState} from "react";
 import {ShoppingListContext} from "../../context/ShoppingContext";
 import {RadioGroup} from '@headlessui/react'
 import useCartHelper from "../../hooks/useCartHelper";
-import {Link} from "react-router-dom";
+import {useHistory} from "react-router-dom";
+import CartItemShow from "../CartItemShow/CartItemShow";
 
 const methods = [
     {
@@ -32,14 +33,75 @@ function CheckIcon(props) {
     );
 }
 
-function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
-}
-
 const Checkout = () => {
-    const {productList, setProductList, cartItemList, setCartItemList} = useContext(ShoppingListContext);
-    const {updateCart, removeItemFromCart, isProductAvailable, getNumOfSpecificItemAddedInCart, allItemPriceAddedInCart} = useCartHelper();
+    const {cartItemList} = useContext(ShoppingListContext);
+    const {allItemPriceAddedInCart} = useCartHelper();
     const [selected, setSelected] = useState(methods[0]);
+    const [isConfirmClicked, setIsConfirmClicked] = useState(false);
+    const history = useHistory();
+    const errors = {
+        email: '', firstName: '', lastName: '', company: '', address: '', city: '', country: '',
+        province: '', postalCode: '', phone: '',
+    }
+
+    const inputEmailRef = useRef();
+    const inputFirstNameRef = useRef();
+    const inputLastNameRef = useRef();
+    const inputCompanyRef = useRef();
+    const inputAddressRef = useRef();
+    const inputCityRef = useRef();
+    const inputCountryRef = useRef();
+    const inputProvinceRef = useRef();
+    const inputPostalCodeRef = useRef();
+    const inputPhoneRef = useRef();
+
+    const navigateToOrderSummary = () => {
+        setIsConfirmClicked(true);
+        validateInputEl([inputEmailRef, inputFirstNameRef, inputAddressRef, inputCityRef, inputCountryRef, inputPhoneRef]);
+        if (
+            errors.email === '' &&
+            errors.firstName === '' &&
+            errors.address === '' &&
+            errors.city === '' &&
+            errors.country === '' &&
+            errors.phone === ''
+        ) {
+            history.push({
+                pathname: '/order-summary',
+                state: {
+                    [inputEmailRef.current.name]: inputEmailRef.current.value,
+                    [inputFirstNameRef.current.name]: inputFirstNameRef.current.value,
+                    [inputLastNameRef.current.name]: inputLastNameRef.current.value,
+                    [inputCompanyRef.current.name]: inputCompanyRef.current.value,
+                    [inputAddressRef.current.name]: inputAddressRef.current.value,
+                    [inputCityRef.current.name]: inputCityRef.current.value,
+                    [inputCountryRef.current.name]: inputCountryRef.current.value,
+                    [inputProvinceRef.current.name]: inputProvinceRef.current.value,
+                    [inputPostalCodeRef.current.name]: inputPostalCodeRef.current.value,
+                    [inputPhoneRef.current.name]: inputPhoneRef.current.value,
+                    deliveryMethod: selected,
+                    cartItems: JSON.parse(JSON.stringify(cartItemList)),
+                }
+            });
+        } else console.log(errors);
+    }
+
+    const validateInputEl = (refs) => {
+        refs.forEach(ref => {
+            console.log(ref.current.value);
+            if (!ref.current.validity.valid) {
+                errors[ref.current.name] = `${ref.current.name} is not valid`;
+            } else errors[ref.current.name] = '';
+        });
+        return errors;
+    }
+
+    const generateErrorMsg = (ref) => {
+        if (ref.current.value !== '' && !ref.current.validity.valid)
+            return <span className="text-red-500 text-sm">{ref.current.name} is not valid</span>
+        else if (ref.current.value === '')
+            return <span className="text-red-500 text-sm">{ref.current.name} is required</span>
+    }
 
     return (
         <div
@@ -49,9 +111,11 @@ const Checkout = () => {
 
                 <div className="mt-6">
                     <label htmlFor="email" className="block text-gray-700 font-bold">Email address</label>
-                    <input type="email" id="email" name="email" autoComplete="email"
+                    <input ref={inputEmailRef} required type="email" id="email" name="email" autoComplete="email"
+                           onFocus={() => setIsConfirmClicked(false)}
                            className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
                                     focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+                    {isConfirmClicked ? generateErrorMsg(inputEmailRef) : null}
                 </div>
 
                 <hr className="my-10 block border-1 bg-gray-500 h-0.1"/>
@@ -59,15 +123,17 @@ const Checkout = () => {
                 <h1 className="text-lg font-bold text-indigo-600">Shipping Information</h1>
                 <div className="flex flex-col lg:flex-row gap-4">
                     <div className="mt-4 flex-1">
-                        <label htmlFor="first-name" className="block text-gray-700 font-bold">First Name</label>
-                        <input type="text" id="first-name" name="first-name"
+                        <label htmlFor="firstName" className="block text-gray-700 font-bold">First Name</label>
+                        <input ref={inputFirstNameRef} required type="text" id="firstName" name="firstName"
+                               onFocus={() => setIsConfirmClicked(false)}
                                className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
                                     focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+                        {isConfirmClicked ? generateErrorMsg(inputFirstNameRef) : null}
                     </div>
 
                     <div className="mt-4 flex-1">
-                        <label htmlFor="last-name" className="block text-gray-700 font-bold">Last Name</label>
-                        <input type="text" id="last-name" name="last-name"
+                        <label htmlFor="lastName" className="block text-gray-700 font-bold">Last Name</label>
+                        <input ref={inputLastNameRef} type="text" id="lastName" name="lastName"
                                className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
                                     focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
                     </div>
@@ -75,45 +141,51 @@ const Checkout = () => {
 
                 <div className="mt-4 flex-1">
                     <label htmlFor="company" className="block text-gray-700 font-bold">Company</label>
-                    <input type="text" id="company" name="company"
+                    <input ref={inputCompanyRef} type="text" id="company" name="company"
                            className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
                                     focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
                 </div>
 
                 <div className="mt-4 flex-1">
                     <label htmlFor="address" className="block text-gray-700 font-bold">Address</label>
-                    <input type="text" id="address" name="address"
+                    <input ref={inputAddressRef} required type="text" id="address" name="address"
+                           onFocus={() => setIsConfirmClicked(false)}
                            className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
                                     focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+                    {isConfirmClicked ? generateErrorMsg(inputAddressRef) : null}
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-4">
                     <div className="mt-4 flex-1">
                         <label htmlFor="city" className="block text-gray-700 font-bold">City</label>
-                        <input type="text" id="city" name="city"
+                        <input ref={inputCityRef} required type="text" id="city" name="city"
+                               onFocus={() => setIsConfirmClicked(false)}
                                className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
                                     focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+                        {isConfirmClicked ? generateErrorMsg(inputCityRef) : null}
                     </div>
 
                     <div className="mt-4 flex-1">
                         <label htmlFor="country" className="block text-gray-700 font-bold">Country</label>
-                        <input type="text" id="country" name="country"
+                        <input ref={inputCountryRef} required type="text" id="country" name="country"
+                               onFocus={() => setIsConfirmClicked(false)}
                                className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
                                     focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+                        {isConfirmClicked ? generateErrorMsg(inputCountryRef) : null}
                     </div>
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-4">
                     <div className="mt-4 flex-1">
                         <label htmlFor="province" className="block text-gray-700 font-bold">Province</label>
-                        <input type="text" id="province" name="province"
+                        <input ref={inputProvinceRef} type="text" id="province" name="province"
                                className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
                                     focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
                     </div>
 
                     <div className="mt-4 flex-1">
-                        <label htmlFor="postal-code" className="block text-gray-700 font-bold">Postal code</label>
-                        <input type="text" id="postal-code" name="postal-code"
+                        <label htmlFor="postalCode" className="block text-gray-700 font-bold">Postal code</label>
+                        <input ref={inputPostalCodeRef} type="text" id="postalCode" name="postalCode"
                                className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
                                     focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
                     </div>
@@ -121,9 +193,11 @@ const Checkout = () => {
 
                 <div className="mt-4 flex-1">
                     <label htmlFor="phone" className="block text-gray-700 font-bold">Phone</label>
-                    <input type="text" id="phone" name="phone"
+                    <input ref={inputPhoneRef} required type="tel" id="phone" name="phone"
+                           onFocus={() => setIsConfirmClicked(false)}
                            className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
                                     focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+                    {isConfirmClicked ? generateErrorMsg(inputPhoneRef) : null}
                 </div>
 
                 <hr className="my-10 block border-1 bg-gray-500 h-0.1"/>
@@ -169,7 +243,8 @@ const Checkout = () => {
                                                                 <span>
                                                                   {plan.time}
                                                                 </span>
-                                                                <span className="block mt-5 font-bold">${plan.price}</span>
+                                                                <span
+                                                                    className="block mt-5 font-bold">${plan.price}</span>
                                                             </RadioGroup.Description>
                                                         </div>
                                                     </div>
@@ -193,97 +268,10 @@ const Checkout = () => {
             <div>
                 <h1 className="text-lg font-bold text-indigo-600">Order Summary</h1>
                 <div className="mt-6 p-4 lg:p-8 bg-white rounded-lg shadow-lg border">
-                    <div className="flow-root mb-8">
-                        <ul role="list" className="-my-6 divide-y divide-gray-200">
-                            {cartItemList.map((cartItem) => (
-                                <li key={cartItem.id} className="py-6 flex">
-                                    <div
-                                        className="flex-shrink-0 w-24 h-24 border border-gray-200 rounded-md overflow-hidden">
-                                        <img
-                                            src={cartItem.image}
-                                            alt="Not Found"
-                                            className="w-full h-full object-center object-cover"
-                                        />
-                                    </div>
 
-                                    <div className="ml-4 flex-1 flex flex-col">
-                                        <div>
-                                            <div
-                                                className="flex justify-between text-base font-medium text-gray-900">
-                                                <h3>
-                                                    <a href={cartItem.href}>{cartItem.title}</a>
-                                                </h3>
-                                                <p className="ml-4">${(cartItem.price * getNumOfSpecificItemAddedInCart(cartItem.id)).toFixed(2)}</p>
-                                            </div>
-                                            {/*<p className="mt-1 text-sm text-gray-500">{product.color}</p>*/}
-                                        </div>
-                                        <div
-                                            className="mt-2 flex-1 flex items-center items-end justify-between text-sm">
-                                            {/*<p className="text-gray-500">Qty {product.quantity}</p>*/}
-                                            <div
-                                                className="relative text-gray-600 focus-within:text-gray-400">
-                                                <input type="number"
-                                                       className="cart-quantity w-6/12 py-2 text-sm text-gray-900 bg-gray-200 rounded-md pl-4
-                                                                                   focus:outline-none focus:bg-gray-300"
-                                                       value={cartItem.quantity}
-                                                       onChange={() => {}}
-                                                />
+                    <CartItemShow/>
 
-                                                <span
-                                                    className="absolute flex flex-col justify-center items-center
-                                                                                  inset-y-0 left-12 pl-2">
-                                                                                <button type="submit"
-                                                                                        disabled={!isProductAvailable(cartItem.id)}
-                                                                                        onClick={() => updateCart(cartItem, true, true)}
-                                                                                        className={classNames(
-                                                                                            isProductAvailable(cartItem.id) ? 'hover:text-indigo-600' : 'hover:text-gray-600',
-                                                                                            'focus:outline-none focus:shadow-outline'
-                                                                                        )}>
-                                                                                  <svg fill="none"
-                                                                                       stroke="currentColor"
-                                                                                       strokeLinecap="round"
-                                                                                       strokeLinejoin="round"
-                                                                                       strokeWidth="2"
-                                                                                       viewBox="0 0 24 24"
-                                                                                       className="w-4 h-4">
-                                                                                      <path d="M5 15l7-7 7 7"/>
-                                                                                  </svg>
-                                                                                </button>
-
-                                                                                <button type="submit"
-                                                                                        onClick={() => updateCart(cartItem, true, false)}
-                                                                                        className="focus:outline-none focus:shadow-outline
-                                                                                        hover:text-indigo-600">
-                                                                                    <svg fill="none"
-                                                                                         stroke="currentColor"
-                                                                                         strokeLinecap="round"
-                                                                                         strokeLinejoin="round"
-                                                                                         strokeWidth="2"
-                                                                                         viewBox="0 0 24 24"
-                                                                                         className="w-4 h-4">
-                                                                                      <path d="M19 9l-7 7-7-7"/>
-                                                                                  </svg>
-                                                                                </button>
-
-                                                                        </span>
-
-                                            </div>
-
-                                            <div className="flex">
-                                                <button type="button"
-                                                        onClick={() => removeItemFromCart(cartItem.id)}
-                                                        className="font-medium text-indigo-600 hover:text-indigo-500">
-                                                    Remove
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <div className="border-t border-gray-200 py-6 font-bold text-gray-900">
+                    <div className="mt-8 border-t border-gray-200 py-6 font-bold text-gray-900">
                         <div className="flex justify-between text-base">
                             <p>Subtotal</p>
                             <p>${allItemPriceAddedInCart()}</p>
@@ -299,13 +287,14 @@ const Checkout = () => {
                             <p>${(+allItemPriceAddedInCart() + +selected.price).toFixed(2)}</p>
                         </div>
 
-                        <Link to='/checkout' className="mt-6">
+                        <div className="mt-6">
                             <button
+                                onClick={navigateToOrderSummary}
                                 className="w-full flex justify-center items-center px-6 py-3 border border-transparent
                                                 rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700">
                                 Confirm Order
                             </button>
-                        </Link>
+                        </div>
                     </div>
                 </div>
             </div>

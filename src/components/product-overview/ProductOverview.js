@@ -4,10 +4,7 @@ import {useParams} from "react-router-dom";
 import {ShoppingListContext} from "../../context/ShoppingContext";
 import useCartHelper from "../../hooks/useCartHelper";
 import {MinusIcon, PlusIcon} from "@heroicons/react/outline";
-
-function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
-}
+import classNames from "../../helper/ClassNameJoiner";
 
 const ProductOverview = () => {
     const {productId} = useParams();
@@ -135,7 +132,7 @@ const ProductOverview = () => {
                                         rounded-md py-3 px-8 flex items-center justify-center text-base
                                         font-medium text-white hover:bg-indigo-700 focus:outline-none
                                         focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                    Add to bag
+                                    Add to Cart
                                 </button>) :
 
                                 (<div className="mt-10">

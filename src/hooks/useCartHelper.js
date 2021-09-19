@@ -91,7 +91,6 @@ const useCartHelper = () => {
         for (const cartItemListEl of cartItemList) {
             totalPrice += (cartItemListEl.price * cartItemListEl.quantity);
         }
-        console.log(totalPrice);
         return totalPrice.toFixed(2);
     }
 
