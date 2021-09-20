@@ -121,7 +121,7 @@ const OrderSummary = () => {
 
                         <div className="mt-16 border-t flex justify-end">
                             <Link to='/' className="font-bold text-indigo-600 mt-2">
-                                Continue Shopping<span><ArrowRightIcon className="inline-block ml-1 h-4 w-4"
+                                Continue Shopping<span><ArrowRightIcon className="animate-ping inline-block ml-2 h-4 w-4"
                                                                        aria-hidden="true"/></span>
                             </Link>
                         </div>

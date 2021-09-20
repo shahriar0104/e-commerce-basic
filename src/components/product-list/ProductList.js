@@ -13,7 +13,7 @@ const ProductList = () => {
     const [selectedCategory, setSelectedCategory] = useState();
     const keyProductList = 'productList';
     const keyCategoryList = 'categoryList';
-    const inputSearchRef = useRef();
+    const inputSearchRef = useRef('');
 
     useEffect(() => {
         if (productList.length === 0) {

@@ -1,6 +1,6 @@
 import {useContext, useEffect, useState} from 'react'
 import {StarIcon} from '@heroicons/react/solid'
-import {useParams} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import {ShoppingListContext} from "../../context/ShoppingContext";
 import useCartHelper from "../../hooks/useCartHelper";
 import {MinusIcon, PlusIcon} from "@heroicons/react/outline";
@@ -34,41 +34,39 @@ const ProductOverview = () => {
     return (
         <div className="bg-white">
             <div className="pt-8">
-                {/*<nav aria-label="Breadcrumb">*/}
-                {/*    <ol role="list"*/}
-                {/*        className="max-w-2xl mx-auto px-4 flex items-center space-x-2 sm:px-6 lg:max-w-7xl lg:px-8">*/}
-                {/*        {productSaved.breadcrumbs.map((breadcrumb) => (*/}
-                {/*            <li key={breadcrumb.id}>*/}
-                {/*                <div className="flex items-center">*/}
-                {/*                    <a href={breadcrumb.href} className="mr-2 text-sm font-medium text-gray-900">*/}
-                {/*                        {breadcrumb.name}*/}
-                {/*                    </a>*/}
-                {/*                    <svg*/}
-                {/*                        width={16}*/}
-                {/*                        height={20}*/}
-                {/*                        viewBox="0 0 16 20"*/}
-                {/*                        fill="currentColor"*/}
-                {/*                        xmlns="http://www.w3.org/2000/svg"*/}
-                {/*                        aria-hidden="true"*/}
-                {/*                        className="w-4 h-5 text-gray-300"*/}
-                {/*                    >*/}
-                {/*                        <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z"/>*/}
-                {/*                    </svg>*/}
-                {/*                </div>*/}
-                {/*            </li>*/}
-                {/*        ))}*/}
-                {/*        <li className="text-sm">*/}
-                {/*            <a href={productSaved.href} aria-current="page"*/}
-                {/*               className="font-medium text-gray-500 hover:text-gray-600">*/}
-                {/*                {productSaved.name}*/}
-                {/*            </a>*/}
-                {/*        </li>*/}
-                {/*    </ol>*/}
-                {/*</nav>*/}
+
+                <nav aria-label="Breadcrumb">
+                    <ol role="list"
+                        className="max-w-2xl mx-auto px-4 flex items-center space-x-2 sm:px-6 lg:max-w-7xl lg:px-8">
+                            <li>
+                                <div className="flex items-center">
+                                    <Link to="/" className="mr-2 text-sm font-medium text-gray-900">
+                                        products
+                                    </Link>
+                                    <svg
+                                        width={16}
+                                        height={20}
+                                        viewBox="0 0 16 20"
+                                        fill="currentColor"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        aria-hidden="true"
+                                        className="w-4 h-5 text-gray-300">
+                                        <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z"/>
+                                    </svg>
+                                </div>
+                            </li>
+                        <li className="text-sm">
+                            <p aria-current="page"
+                               className="font-medium text-gray-500 hover:text-gray-600">
+                               {product.category}
+                            </p>
+                        </li>
+                    </ol>
+                </nav>
 
                 {/* Product info */}
                 <div
-                    className="max-w-2xl mx-auto pb-16 px-4 sm:px-6 lg:max-w-7xl lg:pb-24 lg:px-8
+                    className="max-w-2xl mt-8 mx-auto pb-16 px-4 sm:px-6 lg:max-w-7xl lg:pb-24 lg:px-8
                     lg:grid lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8">
 
                     <div
