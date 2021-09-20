@@ -2,6 +2,7 @@ import {useContext, useEffect} from "react";
 import {ShoppingListContext} from "../../context/ShoppingContext";
 import {Link, useLocation} from "react-router-dom";
 import {ArrowRightIcon} from "@heroicons/react/outline";
+import generateCategoryList from "../../helper/generateCategoryList";
 
 const OrderSummary = () => {
     const location = useLocation();
@@ -17,11 +18,33 @@ const OrderSummary = () => {
         deliveryMethod,
         cartItems,
     } = location.state;
-    const {setCartItemList} = useContext(ShoppingListContext);
+
+    const {productList, setProductList, setFilteredProducts, setCartItemList} = useContext(ShoppingListContext);
+    const keyProductList = 'productList';
+    const keyCategoryList = 'categoryList';
 
     useEffect(() => {
         setCartItemList([]);
+        setAfterOrderProducts();
     }, [location]);
+
+    const setAfterOrderProducts = () => {
+        const products = [...productList];
+        for (const cartItem of cartItems) {
+            products.map(product => {
+                if (cartItem.id === product.id) {
+                    product.rating['count'] -= cartItem.quantity;
+                    return product;
+                }
+                return product;
+            })
+        }
+        localStorage.setItem(keyProductList, JSON.stringify(products));
+        setProductList(products);
+        setFilteredProducts(products);
+        const categories = generateCategoryList(products);
+        localStorage.setItem(keyCategoryList, JSON.stringify(categories));
+    }
 
     const subTotalPrice = () => {
         let totalPrice = 0;

@@ -10,7 +10,13 @@ const ProductOverview = () => {
     const {productId} = useParams();
     const {productList, setProductList} = useContext(ShoppingListContext);
     const [product, setProduct] = useState({title: '', image: '', description: '', price: 0, rating: 0});
-    const {updateCart, isProductAvailable, itemsLeft, isItemPresentInCart, getNumOfSpecificItemAddedInCart} = useCartHelper();
+    const {
+        updateCart,
+        isProductAvailable,
+        itemsLeft,
+        isItemPresentInCart,
+        getNumOfSpecificItemAddedInCart
+    } = useCartHelper();
 
     const setProductItems = (newProductList) => {
         for (const productListEl of newProductList) {
@@ -38,27 +44,27 @@ const ProductOverview = () => {
                 <nav aria-label="Breadcrumb">
                     <ol role="list"
                         className="max-w-2xl mx-auto px-4 flex items-center space-x-2 sm:px-6 lg:max-w-7xl lg:px-8">
-                            <li>
-                                <div className="flex items-center">
-                                    <Link to="/" className="mr-2 text-sm font-medium text-gray-900">
-                                        products
-                                    </Link>
-                                    <svg
-                                        width={16}
-                                        height={20}
-                                        viewBox="0 0 16 20"
-                                        fill="currentColor"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        aria-hidden="true"
-                                        className="w-4 h-5 text-gray-300">
-                                        <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z"/>
-                                    </svg>
-                                </div>
-                            </li>
+                        <li>
+                            <div className="flex items-center">
+                                <Link to="/" className="mr-2 text-sm font-medium text-gray-900">
+                                    products
+                                </Link>
+                                <svg
+                                    width={16}
+                                    height={20}
+                                    viewBox="0 0 16 20"
+                                    fill="currentColor"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    aria-hidden="true"
+                                    className="w-4 h-5 text-gray-300">
+                                    <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z"/>
+                                </svg>
+                            </div>
+                        </li>
                         <li className="text-sm">
                             <p aria-current="page"
                                className="font-medium text-gray-500 hover:text-gray-600">
-                               {product.category}
+                                {product.category}
                             </p>
                         </li>
                     </ol>
@@ -122,35 +128,50 @@ const ProductOverview = () => {
                         </div>
 
                         {
-                            !isItemPresentInCart(product.id) ?
-                                (<button
-                                    type="submit"
-                                    onClick={() => updateCart(product, false, true)}
-                                    className="mt-10 w-full bg-indigo-600 border border-transparent
+                            product.rating['count'] <= 0 ?
+                                (<div className="mt-10">
+                                    <button
+                                        disabled
+                                        className="flex justify-center items-center px-8 py-3 border border-transparent
+                                                   w-full rounded-md shadow-sm text-base font-medium text-white
+                                                   cursor-not-allowed bg-red-500">
+                                        Out of stock
+                                    </button>
+                                </div>) :
+
+                                (
+                                    !isItemPresentInCart(product.id) ?
+                                        (<button
+                                            type="submit"
+                                            onClick={() => updateCart(product, false, true)}
+                                            className="mt-10 w-full bg-indigo-600 border border-transparent
                                         rounded-md py-3 px-8 flex items-center justify-center text-base
                                         font-medium text-white hover:bg-indigo-700 focus:outline-none
                                         focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                    Add to Cart
-                                </button>) :
+                                            Add to Cart
+                                        </button>) :
 
-                                (<div className="mt-10">
-                                    <div className="flex justify-center items-center px-4 py-2 border border-transparent
+                                        (<div className="mt-10">
+                                            <div className="flex justify-center items-center px-4 py-2 border border-transparent
                                             rounded-md shadow-sm text-base font-medium text-gray-900 bg-gray-100">
-                                        <button className="bg-indigo-700 text-white p-2 rounded-lg shadow-sm cursor-pointer"
-                                                onClick={() => updateCart(product, true, false)}>
-                                                <MinusIcon className="h-4 w-4" aria-hidden="true"/>
-                                        </button>
-                                        <span className="mx-3">{getNumOfSpecificItemAddedInCart(product.id)}</span>
-                                        <button className={classNames(
+                                                <button
+                                                    className="bg-indigo-700 text-white p-2 rounded-lg shadow-sm cursor-pointer"
+                                                    onClick={() => updateCart(product, true, false)}>
+                                                    <MinusIcon className="h-4 w-4" aria-hidden="true"/>
+                                                </button>
+                                                <span
+                                                    className="mx-3">{getNumOfSpecificItemAddedInCart(product.id)}</span>
+                                                <button className={classNames(
                                                     isProductAvailable(product.id) ? 'bg-indigo-700 text-white' : 'bg-gray-300',
                                                     'p-2 rounded-lg shadow-sm cursor-pointer'
                                                 )}
-                                                disabled={!isProductAvailable(product.id)}
-                                                onClick={() => updateCart(product, true, true)}>
-                                                <PlusIcon className="h-4 w-4" aria-hidden="true"/>
-                                        </button>
-                                    </div>
-                                </div>)
+                                                        disabled={!isProductAvailable(product.id)}
+                                                        onClick={() => updateCart(product, true, true)}>
+                                                    <PlusIcon className="h-4 w-4" aria-hidden="true"/>
+                                                </button>
+                                            </div>
+                                        </div>)
+                                )
                         }
                     </div>
                 </div>

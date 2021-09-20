@@ -5,12 +5,15 @@ import {Listbox, Transition} from '@headlessui/react'
 import useCartHelper from "../../hooks/useCartHelper";
 import {Link} from "react-router-dom";
 import classNames from "../../helper/ClassNameJoiner";
+import MyLoader from "../content-loader/MyLoader";
+import generateCategoryList from "../../helper/generateCategoryList";
 
 const ProductList = () => {
     const {productList, setProductList, filteredProducts, setFilteredProducts} = useContext(ShoppingListContext);
     const [categoryList, setCategoryList] = useState([]);
     const {updateCart, isProductAvailable, isItemPresentInCart, getNumOfSpecificItemAddedInCart} = useCartHelper();
     const [selectedCategory, setSelectedCategory] = useState();
+    const [loader, setLoader] = useState(false);
     const keyProductList = 'productList';
     const keyCategoryList = 'categoryList';
     const inputSearchRef = useRef('');
@@ -18,6 +21,7 @@ const ProductList = () => {
     useEffect(() => {
         if (productList.length === 0) {
             if (localStorage.getItem(keyProductList) == null) {
+                setLoader(true);
                 fetch('https://fakestoreapi.com/products')
                     .then((response) => response.json())
                     .then(responseData => {
@@ -27,6 +31,7 @@ const ProductList = () => {
                         const categories = generateCategoryList(responseData);
                         localStorage.setItem(keyCategoryList, JSON.stringify(categories));
                         setCategoryList(categories);
+                        setLoader(false);
                     });
             } else {
                 setProductList(JSON.parse(localStorage.getItem(keyProductList)));
@@ -53,20 +58,6 @@ const ProductList = () => {
             }
         }
     }, [selectedCategory]);
-
-    const generateCategoryList = (products) => {
-        console.log(products);
-        let categories = [];
-        categories.push('All');
-        for (const productListEl of products) {
-            for (let i = 0; i < categories.length; i++) {
-                if (categories[i] === productListEl.category) break;
-                else if (i === categories.length - 1)
-                    categories.push(productListEl.category);
-            }
-        }
-        return categories;
-    }
 
     const searchProducts = () => {
         let products = [];
@@ -99,11 +90,15 @@ const ProductList = () => {
         <div>
             <div className="max-w-2xl mx-auto py-4 px-2 sm:py-8 sm:px-4 lg:max-w-7xl lg:px-8">
 
+                {loader ? <MyLoader/> : null}
+
                 <div className="mt-2 grid grid-cols-1 sm:grid-cols-6">
 
                     <div className="relative sm:col-start-1 sm:col-span-2">
                         <input ref={inputSearchRef}
-                               onChange={() => {searchProducts()}}
+                               onChange={() => {
+                                   searchProducts()
+                               }}
                                type="text"
                                className="w-full py-2 text-sm text-gray-700 bg-white rounded-md border-2 shadow-2xl pl-8
                                           focus:outline-none focus:border-indigo-500"
@@ -223,7 +218,7 @@ const ProductList = () => {
                                             disabled
                                             className="flex justify-center items-center px-6 py-2 border border-transparent
                                                        w-full rounded-md shadow-sm text-base font-medium text-white
-                                                       cursor-pointer bg-red-500">
+                                                       cursor-not-allowed bg-red-500">
                                             Out of stock
                                         </button>
                                     </div>) :
