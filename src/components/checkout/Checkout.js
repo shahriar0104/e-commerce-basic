@@ -3,7 +3,7 @@ import {ShoppingListContext} from "../../context/ShoppingContext";
 import {RadioGroup} from '@headlessui/react'
 import useCartHelper from "../../hooks/useCartHelper";
 import {useHistory} from "react-router-dom";
-import CartItemShow from "../CartItemShow/CartItemShow";
+import CartItemShow from "../cart-item-show/CartItemShow";
 
 const methods = [
     {

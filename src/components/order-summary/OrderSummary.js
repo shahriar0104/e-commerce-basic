@@ -58,7 +58,7 @@ const OrderSummary = () => {
                                         <img
                                             src={cartItem.image}
                                             alt="Not Found"
-                                            className="w-full h-full object-center object-cover"
+                                            className="w-full h-full object-center object-fill"
                                         />
                                     </div>
 

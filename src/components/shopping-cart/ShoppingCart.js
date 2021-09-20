@@ -5,7 +5,7 @@ import './ShoppingCart.css';
 import {ShoppingListContext} from "../../context/ShoppingContext";
 import useCartHelper from "../../hooks/useCartHelper";
 import {Link} from "react-router-dom";
-import CartItemShow from "../CartItemShow/CartItemShow";
+import CartItemShow from "../cart-item-show/CartItemShow";
 
 const ShoppingCart = () => {
     const {openModal, setOpenModal} = useContext(ShoppingListContext);
