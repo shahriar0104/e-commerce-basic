@@ -1,7 +1,7 @@
 import {useContext} from "react";
 import {ShoppingListContext} from "../context/ShoppingContext";
 
-const useCartHelper = () => {
+const CartHelper = () => {
     const {productList, cartItemList, setCartItemList} = useContext(ShoppingListContext);
 
     const updateCart = (cartItem, isItemPresent, isIncrement) => {
@@ -16,7 +16,7 @@ const useCartHelper = () => {
             for (let i = 0; i < newCartItemList.length; i++) {
                 if (newCartItemList[i].id === cartItem.id) {
                     newProduct = {...newCartItemList[i]};
-                    if(isIncrement) {
+                    if (isIncrement) {
                         if (newProduct.availableItemCount > 0) {
                             newProduct.quantity += 1
                             newProduct.availableItemCount -= 1;
@@ -48,7 +48,7 @@ const useCartHelper = () => {
     const isProductAvailable = (cartItemId) => {
         for (const cartItemListEl of cartItemList) {
             if (cartItemListEl.id === cartItemId) {
-                if(cartItemListEl.availableItemCount > 0)
+                if (cartItemListEl.availableItemCount > 0)
                     return true;
             }
         }
@@ -86,12 +86,35 @@ const useCartHelper = () => {
         return totalItemInCart;
     }
 
-    const allItemPriceAddedInCart = () => {
+    const allItemPriceAddedInCart = (cartItems) => {
         let totalPrice = 0;
-        for (const cartItemListEl of cartItemList) {
+        for (const cartItemListEl of cartItems === undefined ? cartItemList : cartItems) {
             totalPrice += (cartItemListEl.price * cartItemListEl.quantity);
         }
         return totalPrice.toFixed(2);
+    }
+
+    const onChangeQuantity = (event, cartItem, isItemPresent, isIncrement) => {
+        let quantity = 0;
+        try {
+            quantity = event.target.value;
+            if (quantity > productList[cartItem.id - 1].rating['count'] || !quantity)
+                event.preventDefault();
+            else {
+                const cartItems = [...cartItemList];
+                for (const item of cartItems)
+                    if (item.id === cartItem.id) {
+                        item.quantity = Number(quantity);
+                        item.availableItemCount = item.rating['count'] - item.quantity;
+                    }
+                setCartItemList(cartItems);
+            }
+        } catch (e) {
+            isIncrement ? (isItemPresent ? updateCart(cartItem, true, true)
+                    : updateCart(cartItem, false, true))
+                :
+                updateCart(cartItem, true, false);
+        }
     }
 
     const generateProductQuantityArray = (cartItemId) => {
@@ -116,8 +139,9 @@ const useCartHelper = () => {
         getNumOfSpecificItemAddedInCart,
         getTotalNumOfItemAddedInCart,
         allItemPriceAddedInCart,
+        onChangeQuantity,
         generateProductQuantityArray,
     }
 }
 
-export default useCartHelper;
+export default CartHelper;

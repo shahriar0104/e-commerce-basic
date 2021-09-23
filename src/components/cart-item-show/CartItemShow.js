@@ -1,7 +1,7 @@
 import classNames from "../../helper/ClassNameJoiner";
 import {useContext} from "react";
 import {ShoppingListContext} from "../../context/ShoppingContext";
-import useCartHelper from "../../hooks/useCartHelper";
+import CartHelper from "../../helper/CartHelper";
 
 const CartItemShow = () => {
     const {cartItemList} = useContext(ShoppingListContext);
@@ -10,7 +10,8 @@ const CartItemShow = () => {
         removeItemFromCart,
         isProductAvailable,
         getNumOfSpecificItemAddedInCart,
-    } = useCartHelper();
+        onChangeQuantity,
+    } = CartHelper();
 
   return (
       <div className="flow-root">
@@ -44,14 +45,17 @@ const CartItemShow = () => {
                                   className="relative text-gray-600 focus-within:text-gray-400">
                                   <input type="number"
                                          className="cart-quantity w-6/12 py-2 text-sm text-gray-900 bg-gray-200 rounded-md pl-2
-                                                                                          focus:outline-none focus:bg-gray-300"
+                                                    focus:outline-none focus:bg-white focus:ring-indigo-500 focus:ring-2"
                                          value={cartItem.quantity}
-                                         disabled/>
+                                         onChange={event => onChangeQuantity(event, cartItem)}/>
 
                                   <span className="absolute flex flex-col justify-center items-center inset-y-0 left-8 sm:left-10 lg:left-12 pl-2">
-                                        <button type="submit"
-                                                disabled={!isProductAvailable(cartItem.id)}
-                                                onClick={() => updateCart(cartItem, true, true)}
+                                        <button disabled={!isProductAvailable(cartItem.id)}
+                                                onClick={(event) => {
+                                                    event.preventDefault();
+                                                    updateCart(cartItem, true, true);
+                                                }}
+                                                // onClick={() => onChangeQuantity(Number(cartItem.quantity), cartItem, true, true)}
                                                 className={classNames(
                                                     isProductAvailable(cartItem.id) ? 'hover:text-indigo-600' : 'hover:text-gray-600',
                                                     'focus:outline-none focus:shadow-outline'
@@ -67,9 +71,12 @@ const CartItemShow = () => {
                                           </svg>
                                         </button>
 
-                                        <button type="submit"
-                                                disabled={cartItem.quantity === 1}
-                                                onClick={() => updateCart(cartItem, true, false)}
+                                        <button disabled={cartItem.quantity === 1}
+                                                onClick={(event) => {
+                                                    event.preventDefault();
+                                                    updateCart(cartItem, true, false);
+                                                }}
+                                                // onClick={() => onChangeQuantity(Number(cartItem.quantity), cartItem, true,false)}
                                                 className={classNames(
                                                     cartItem.quantity !== 1 ? 'hover:text-indigo-600' : 'hover:text-gray-600',
                                                     'focus:outline-none focus:shadow-outline'

@@ -1,5 +1,4 @@
 const generateCategoryList = (products) => {
-    console.log(products);
     let categories = [];
     categories.push('All');
     for (const productListEl of products) {

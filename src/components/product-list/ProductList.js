@@ -1,78 +1,36 @@
-import {Fragment, useContext, useEffect, useRef, useState} from "react";
-import {ShoppingListContext} from "../../context/ShoppingContext";
+import {Fragment, useRef, useState} from "react";
 import {CheckIcon, MinusIcon, PlusIcon, SelectorIcon} from "@heroicons/react/outline";
 import {Listbox, Transition} from '@headlessui/react'
-import useCartHelper from "../../hooks/useCartHelper";
+import CartHelper from "../../helper/CartHelper";
 import {Link} from "react-router-dom";
 import classNames from "../../helper/ClassNameJoiner";
 import MyLoader from "../content-loader/MyLoader";
-import generateCategoryList from "../../helper/generateCategoryList";
+import useSetProducts from "../../hooks/useSetProducts";
 
 const ProductList = () => {
-    const {productList, setProductList, filteredProducts, setFilteredProducts} = useContext(ShoppingListContext);
-    const [categoryList, setCategoryList] = useState([]);
-    const {updateCart, isProductAvailable, isItemPresentInCart, getNumOfSpecificItemAddedInCart} = useCartHelper();
-    const [selectedCategory, setSelectedCategory] = useState();
-    const [loader, setLoader] = useState(false);
-    const keyProductList = 'productList';
-    const keyCategoryList = 'categoryList';
+    const {productList, filteredProducts, setFilteredProducts, categoryList, loader} = useSetProducts();
+    const {updateCart, isProductAvailable, isItemPresentInCart, getNumOfSpecificItemAddedInCart} = CartHelper();
+    const [selectedCategory, setSelectedCategory] = useState('All');
     const inputSearchRef = useRef('');
+    console.log('RENDERING...');
 
-    useEffect(() => {
-        if (productList.length === 0) {
-            if (localStorage.getItem(keyProductList) == null) {
-                setLoader(true);
-                fetch('https://fakestoreapi.com/products')
-                    .then((response) => response.json())
-                    .then(responseData => {
-                        localStorage.setItem(keyProductList, JSON.stringify(responseData));
-                        setProductList(productList.concat(responseData));
-                        setFilteredProducts(filteredProducts.concat(responseData));
-                        const categories = generateCategoryList(responseData);
-                        localStorage.setItem(keyCategoryList, JSON.stringify(categories));
-                        setCategoryList(categories);
-                        setLoader(false);
-                    });
-            } else {
-                setProductList(JSON.parse(localStorage.getItem(keyProductList)));
-                setFilteredProducts(JSON.parse(localStorage.getItem(keyProductList)));
-                setCategoryList(JSON.parse(localStorage.getItem(keyCategoryList)));
-            }
-        } else setCategoryList(JSON.parse(localStorage.getItem(keyCategoryList)));
-    }, []);
+    const searchAndFilterProducts = (category) => {
+        if (category !== undefined) setSelectedCategory(category);
+        if (category === undefined) category = selectedCategory;
 
-    useEffect(() => {
-        setSelectedCategory(categoryList[0])
-    }, [categoryList]);
-
-    useEffect(() => {
-        if (inputSearchRef.current.value !== '') {
-            searchProducts();
-        } else {
-            if (selectedCategory === 'All')
-                setFilteredProducts(JSON.parse(localStorage.getItem(keyProductList)));
-            else {
-                let products = [...productList];
-                products = products.filter((product) => product.category === selectedCategory);
-                setFilteredProducts(products);
-            }
-        }
-    }, [selectedCategory]);
-
-    const searchProducts = () => {
         let products = [];
         const inputValue = inputSearchRef.current.value;
         for (const filteredProductsEl of productList) {
             if ((filteredProductsEl.title).toLowerCase().includes(inputValue.toLowerCase()))
-                if (selectedCategory === 'All') products.push(filteredProductsEl);
-                else if (selectedCategory === filteredProductsEl.category) products.push(filteredProductsEl);
+                if (category === 'All' || category === undefined) products.push(filteredProductsEl);
+                else if (category === filteredProductsEl.category) products.push(filteredProductsEl);
         }
         setFilteredProducts(products);
     }
 
     const textTransform = (text, search) => {
         if (search && text) {
-            let pattern = search.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+            let pattern = search.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
             pattern = pattern.split(' ').filter((t) => {
                 return t.length > 0;
             }).join('|');
@@ -96,9 +54,7 @@ const ProductList = () => {
 
                     <div className="relative sm:col-start-1 sm:col-span-2">
                         <input ref={inputSearchRef}
-                               onChange={() => {
-                                   searchProducts()
-                               }}
+                               onChange={() => searchAndFilterProducts()}
                                type="text"
                                className="w-full py-2 text-sm text-gray-700 bg-white rounded-md border-2 shadow-2xl pl-8
                                           focus:outline-none focus:border-indigo-500"
@@ -118,7 +74,7 @@ const ProductList = () => {
                         </span>
                     </div>
 
-                    <Listbox value={selectedCategory} onChange={setSelectedCategory}>
+                    <Listbox value={selectedCategory} onChange={category => searchAndFilterProducts(category)}>
                         {({open}) => (
                             <>
                                 <div className="relative mt-4 sm:mt-0 sm:col-start-5 sm:col-span-2">
@@ -227,7 +183,8 @@ const ProductList = () => {
                                         !isItemPresentInCart(product.id) ?
                                             (<div className="mt-auto">
                                                 <button
-                                                    onClick={() => updateCart(product, false, true)}
+                                                    onClick={() => updateCart(product, false, false)}
+                                                    // onClick={() => onChangeQuantity(1, product, false, true)}
                                                     className="flex justify-center items-center px-6 py-2 border border-transparent
                                                                w-full rounded-md shadow-sm text-base font-medium text-white
                                                                cursor-pointer bg-indigo-700 hover:bg-indigo-800">

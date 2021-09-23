@@ -12,56 +12,18 @@ import OrderSummary from "../order-summary/OrderSummary";
 const Home = () => {
     return (
         <Router>
-            <Switch>
-                <Route exact path="/" render={() =>
-                    <ShoppingContext>
-                        <Navbar/>
-                        <ProductList/>
-                    </ShoppingContext>
-                }/>
-
-                <Route exact path="/product/:productId" render={() =>
-                    <ShoppingContext>
-                        <Navbar/>
-                        <ProductOverview/>
-                    </ShoppingContext>
-                }/>
-
-                <Route exact path="/about" render={() =>
-                    <ShoppingContext>
-                        <Navbar/>
-                        <AboutUs/>
-                    </ShoppingContext>
-                }/>
-
-                <Route exact path="/contact" render={() =>
-                    <ShoppingContext>
-                        <Navbar/>
-                        <ContactUs/>
-                    </ShoppingContext>
-                }/>
-
-                <Route exact path="/checkout" render={() =>
-                    <ShoppingContext>
-                        <Navbar/>
-                        <Checkout/>
-                    </ShoppingContext>
-                }/>
-
-                <Route exact path="/order-summary" render={() =>
-                    <ShoppingContext>
-                        <Navbar/>
-                        <OrderSummary/>
-                    </ShoppingContext>
-                }/>
-
-                <Route exact path="*" render={() =>
-                    <ShoppingContext>
-                        <Navbar/>
-                        <ErrorPage/>
-                    </ShoppingContext>
-                }/>
-            </Switch>
+            <ShoppingContext>
+                <Navbar/>
+                <Switch>
+                    <Route exact path="/" component={ProductList}/>
+                    <Route exact path="/product/:productId" component={ProductOverview}/>
+                    <Route exact path="/about" component={AboutUs}/>
+                    <Route exact path="/contact" component={ContactUs}/>
+                    <Route exact path="/checkout" component={Checkout}/>
+                    <Route exact path="/order-summary" component={OrderSummary}/>
+                    <Route exact path="*" component={ErrorPage}/>
+                </Switch>
+            </ShoppingContext>
         </Router>
     )
 }

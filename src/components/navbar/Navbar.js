@@ -3,7 +3,7 @@ import {Disclosure} from '@headlessui/react'
 import {MenuIcon, XIcon} from '@heroicons/react/outline'
 import ShoppingCart from "../shopping-cart/ShoppingCart";
 import {ShoppingListContext} from "../../context/ShoppingContext";
-import useCartHelper from "../../hooks/useCartHelper";
+import CartHelper from "../../helper/CartHelper";
 import {Link} from "react-router-dom";
 import classNames from "../../helper/ClassNameJoiner";
 
@@ -16,7 +16,7 @@ const navigationItems = [
 const Navbar = () => {
     const {openModal, setOpenModal} = useContext(ShoppingListContext);
     const [navigation, setNavigation] = useState(navigationItems);
-    const {getTotalNumOfItemAddedInCart} = useCartHelper();
+    const {getTotalNumOfItemAddedInCart} = CartHelper();
 
     const changeNavigation = (navName) => {
         const newNavigation = [...navigationItems];

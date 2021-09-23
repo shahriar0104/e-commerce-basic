@@ -3,13 +3,13 @@ import {Dialog, Transition} from '@headlessui/react'
 import {XIcon} from '@heroicons/react/outline'
 import './ShoppingCart.css';
 import {ShoppingListContext} from "../../context/ShoppingContext";
-import useCartHelper from "../../hooks/useCartHelper";
+import CartHelper from "../../helper/CartHelper";
 import {Link} from "react-router-dom";
 import CartItemShow from "../cart-item-show/CartItemShow";
 
 const ShoppingCart = () => {
     const {openModal, setOpenModal} = useContext(ShoppingListContext);
-    const {allItemPriceAddedInCart} = useCartHelper();
+    const {allItemPriceAddedInCart} = CartHelper();
 
     return (
         <Transition.Root show={openModal} as={Fragment}>

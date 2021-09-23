@@ -1,48 +1,32 @@
-import {useContext, useEffect, useState} from 'react'
+import {useState} from 'react'
 import {StarIcon} from '@heroicons/react/solid'
 import {Link, useParams} from "react-router-dom";
-import {ShoppingListContext} from "../../context/ShoppingContext";
-import useCartHelper from "../../hooks/useCartHelper";
+import CartHelper from "../../helper/CartHelper";
 import {MinusIcon, PlusIcon} from "@heroicons/react/outline";
 import classNames from "../../helper/ClassNameJoiner";
+import {keyProductList} from "../../constants/keys";
 
 const ProductOverview = () => {
     const {productId} = useParams();
-    const {productList, setProductList} = useContext(ShoppingListContext);
-    const [product, setProduct] = useState({title: '', image: '', description: '', price: 0, rating: 0});
+    const setTheProduct = () => {
+        for (const el of JSON.parse(localStorage.getItem(keyProductList)))
+            if (el.id === Number(productId)) return el;
+    }
+    const [product] = useState(setTheProduct());
     const {
         updateCart,
         isProductAvailable,
         itemsLeft,
         isItemPresentInCart,
         getNumOfSpecificItemAddedInCart
-    } = useCartHelper();
-
-    const setProductItems = (newProductList) => {
-        for (const productListEl of newProductList) {
-            if (productListEl.id === +productId) {
-                setProduct({...productListEl});
-                break;
-            }
-        }
-    }
-
-    useEffect(() => {
-        if (productList.length === 0) {
-            const newProductList = JSON.parse(localStorage.getItem('productList'));
-            setProductList((prevProductList) => {
-                setProductItems(newProductList);
-                return prevProductList.concat(newProductList);
-            });
-        } else setProductItems(productList);
-    }, []);
+    } = CartHelper();
 
     return (
         <div className="bg-white">
             <div className="pt-8">
 
                 <nav aria-label="Breadcrumb">
-                    <ol role="list"
+                    <ol role="presentation"
                         className="max-w-2xl mx-auto px-4 flex items-center space-x-2 sm:px-6 lg:max-w-7xl lg:px-8">
                         <li>
                             <div className="flex items-center">

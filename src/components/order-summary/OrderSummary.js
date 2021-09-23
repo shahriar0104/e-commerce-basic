@@ -1,11 +1,14 @@
-import {useContext, useEffect} from "react";
-import {ShoppingListContext} from "../../context/ShoppingContext";
 import {Link, useLocation} from "react-router-dom";
 import {ArrowRightIcon} from "@heroicons/react/outline";
-import generateCategoryList from "../../helper/generateCategoryList";
+import CartHelper from "../../helper/CartHelper";
 
 const OrderSummary = () => {
     const location = useLocation();
+    const {
+        formFields,
+        deliveryMethod,
+        cartItems,
+    } = location.state;
     const {
         firstName,
         lastName,
@@ -15,48 +18,8 @@ const OrderSummary = () => {
         country,
         postalCode,
         phone,
-        deliveryMethod,
-        cartItems,
-    } = location.state;
-
-    const {productList, setProductList, setFilteredProducts, setCartItemList} = useContext(ShoppingListContext);
-    const keyProductList = 'productList';
-    const keyCategoryList = 'categoryList';
-
-    useEffect(() => {
-        setCartItemList([]);
-        setAfterOrderProducts();
-    }, [location]);
-
-    const setAfterOrderProducts = () => {
-        const products = [...productList];
-        for (const cartItem of cartItems) {
-            products.map(product => {
-                if (cartItem.id === product.id) {
-                    product.rating['count'] -= cartItem.quantity;
-                    return product;
-                }
-                return product;
-            })
-        }
-        localStorage.setItem(keyProductList, JSON.stringify(products));
-        setProductList(products);
-        setFilteredProducts(products);
-        const categories = generateCategoryList(products);
-        localStorage.setItem(keyCategoryList, JSON.stringify(categories));
-    }
-
-    const subTotalPrice = () => {
-        let totalPrice = 0;
-        for (const cartItemsEl of cartItems) {
-            totalPrice += (cartItemsEl.price * cartItemsEl.quantity);
-        }
-        return totalPrice.toFixed(2);
-    }
-
-    const totalPrice = () => {
-        return (+subTotalPrice() + +deliveryMethod.price).toFixed(2);
-    }
+    } = formFields;
+    const {allItemPriceAddedInCart} = CartHelper();
 
     return (
         <div className="max-w-2xl mx-auto py-4 px-2 sm:py-8 sm:px-4 lg:py-16
@@ -73,7 +36,7 @@ const OrderSummary = () => {
 
                 <div className="mt-6 p-4 lg:p-8 bg-white rounded-lg shadow-lg border">
                     <div className="flow-root mb-8">
-                        <ul role="list" className="-my-6 divide-y divide-gray-200">
+                        <ul role="presentation" className="-my-6 divide-y divide-gray-200">
                             {cartItems.map((cartItem) => (
                                 <li key={cartItem.id} className="py-6 flex">
                                     <div
@@ -108,7 +71,7 @@ const OrderSummary = () => {
                     <div className="border-t border-gray-200 py-6 font-bold text-gray-900">
                         <div className="flex justify-between text-base">
                             <p>Subtotal</p>
-                            <p>${subTotalPrice()}</p>
+                            <p>${allItemPriceAddedInCart(cartItems)}</p>
                         </div>
 
                         <div className="flex justify-between text-base mt-2">
@@ -118,7 +81,7 @@ const OrderSummary = () => {
 
                         <div className="my-4 py-4 border-t border-gray-200 flex justify-between text-base">
                             <p>Total</p>
-                            <p>${totalPrice()}</p>
+                            <p>${(Number(allItemPriceAddedInCart(cartItems)) + Number(deliveryMethod.price)).toFixed(2)}</p>
                         </div>
 
                         <div className="mt-8 grid grid-cols-1 grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
@@ -144,8 +107,9 @@ const OrderSummary = () => {
 
                         <div className="mt-16 border-t flex justify-end">
                             <Link to='/' className="font-bold text-indigo-600 mt-2">
-                                Continue Shopping<span><ArrowRightIcon className="animate-ping inline-block ml-2 h-4 w-4"
-                                                                       aria-hidden="true"/></span>
+                                Continue Shopping<span><ArrowRightIcon
+                                className="animate-ping inline-block ml-2 h-4 w-4"
+                                aria-hidden="true"/></span>
                             </Link>
                         </div>
                     </div>
