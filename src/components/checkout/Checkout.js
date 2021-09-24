@@ -2,10 +2,9 @@ import {useContext, useState} from "react";
 import {ShoppingListContext} from "../../context/ShoppingContext";
 import {RadioGroup} from '@headlessui/react'
 import CartHelper from "../../helper/CartHelper";
-import {useHistory} from "react-router-dom";
+import {Redirect, useHistory} from "react-router-dom";
 import CartItemShow from "../cart-item-show/CartItemShow";
-import emptyCart from "../../assets/images/empty-cart.png"
-import {keyCategoryList, keyProductList} from "../../constants/keys";
+import {keyCartItemList, keyCategoryList, keyProductList} from "../../constants/keys";
 import generateCategoryList from "../../helper/generateCategoryList";
 import InputField from "./InputField";
 
@@ -55,14 +54,6 @@ const Checkout = () => {
     const history = useHistory();
 
     const inputChangeHandler = (event) => {
-        // if (event.target.name === 'phone') {
-        //     const pattern = "/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im";
-        //     const digits = (event.target.value).replace(/\D/g, "");
-        //     if (!pattern.match(digits)) {
-        //         event.preventDefault();
-        //         return;
-        //     }
-        // }
         setFormFields({...formFields, [event.target.name]: event.target.value});
     }
 
@@ -70,22 +61,22 @@ const Checkout = () => {
         event.preventDefault();
         setAfterOrderProducts();
 
-        history.push({
+        history.replace({
             pathname: '/order-summary',
             state: {
                 formFields,
                 deliveryMethod: selected,
-                cartItems: JSON.parse(JSON.stringify(cartItemList)),
+                cartItems: new Map(cartItemList),
             }
         });
     }
 
     const setAfterOrderProducts = () => {
         const products = [...productList];
-        for (const cartItem of cartItemList)
-            products[cartItem.id - 1].rating['count'] -= cartItem.quantity;
-        setCartItemList([]);
+        cartItemList.forEach((value, key) => products[key - 1].rating['count'] -= value.quantity);
+        setCartItemList(new Map());
         setProductList(products);
+        localStorage.removeItem(keyCartItemList);
         localStorage.setItem(keyProductList, JSON.stringify(products));
         localStorage.setItem(keyCategoryList, JSON.stringify(generateCategoryList(products)));
     }
@@ -96,44 +87,50 @@ const Checkout = () => {
                 className="mt-4 max-w-2xl mx-auto py-4 px-2 sm:py-8 sm:px-4 lg:max-w-7xl lg:px-8 grid grid-cols-1 lg:grid-cols-2 lg:gap-16">
 
                 {
-                    cartItemList.length === 0 ?
-                        (<div className="lg:col-span-2 flex justify-center">
-                            <img
-                                src={emptyCart}
-                                alt="your shopping cart is empty"
-                                className="object-center object-fill"
-                            />
-                        </div>) :
+                    cartItemList.size === 0 ?
+                        (
+                            <Redirect to="/" />
+                        ) :
 
                         (
                             <>
                                 <div>
                                     <h1 className="text-lg font-bold text-indigo-600">Contact Information</h1>
 
-                                    <InputField label="Email address" name="email"  isRequired={true} value={formFields.email} change={inputChangeHandler}/>
+                                    <InputField label="Email address" name="email" isRequired={true}
+                                                value={formFields.email} change={inputChangeHandler}/>
 
                                     <hr className="my-10 block border-1 bg-gray-500 h-0.1"/>
 
                                     <h1 className="text-lg font-bold text-indigo-600">Shipping Information</h1>
                                     <div className="flex flex-col lg:flex-row gap-4">
-                                        <InputField label="First Name" name="firstName" isRequired={true} value={formFields.firstName} change={inputChangeHandler}/>
-                                        <InputField label="Last Name" name="lastName"  isRequired={false} value={formFields.lastName} change={inputChangeHandler}/>
+                                        <InputField label="First Name" name="firstName" isRequired={true}
+                                                    value={formFields.firstName} change={inputChangeHandler}/>
+                                        <InputField label="Last Name" name="lastName" isRequired={false}
+                                                    value={formFields.lastName} change={inputChangeHandler}/>
                                     </div>
 
-                                    <InputField label="Company" name="company"  isRequired={false} value={formFields.company} change={inputChangeHandler}/>
-                                    <InputField label="Address" name="address" isRequired={true} value={formFields.address} change={inputChangeHandler}/>
+                                    <InputField label="Company" name="company" isRequired={false}
+                                                value={formFields.company} change={inputChangeHandler}/>
+                                    <InputField label="Address" name="address" isRequired={true}
+                                                value={formFields.address} change={inputChangeHandler}/>
 
                                     <div className="flex flex-col lg:flex-row gap-4">
-                                        <InputField label="City" name="city" isRequired={true} value={formFields.city} change={inputChangeHandler}/>
-                                        <InputField label="Country" name="country" isRequired={true} value={formFields.country} change={inputChangeHandler}/>
+                                        <InputField label="City" name="city" isRequired={true} value={formFields.city}
+                                                    change={inputChangeHandler}/>
+                                        <InputField label="Country" name="country" isRequired={true}
+                                                    value={formFields.country} change={inputChangeHandler}/>
                                     </div>
 
                                     <div className="flex flex-col lg:flex-row gap-4">
-                                        <InputField label="Province" name="province" isRequired={false} value={formFields.province} change={inputChangeHandler}/>
-                                        <InputField label="Postal Code" name="postalCode" isRequired={false} value={formFields.postalCode} change={inputChangeHandler}/>
+                                        <InputField label="Province" name="province" isRequired={false}
+                                                    value={formFields.province} change={inputChangeHandler}/>
+                                        <InputField label="Postal Code" name="postalCode" isRequired={false}
+                                                    value={formFields.postalCode} change={inputChangeHandler}/>
                                     </div>
 
-                                    <InputField label="Phone" name="phone" isRequired={true} value={formFields.phone} change={inputChangeHandler}/>
+                                    <InputField label="Phone" name="phone" isRequired={true} value={formFields.phone}
+                                                change={inputChangeHandler}/>
 
                                     <hr className="my-10 block border-1 bg-gray-500 h-0.1"/>
 
@@ -149,8 +146,8 @@ const Checkout = () => {
                                                             value={plan}
                                                             className={({active, checked}) =>
                                                                 `${active
-                                                                        ? 'ring-2 ring-offset-2 ring-offset-indigo-300 ring-white ring-opacity-60'
-                                                                        : ''}
+                                                                    ? 'ring-2 ring-offset-2 ring-offset-indigo-300 ring-white ring-opacity-60'
+                                                                    : ''}
                                                                 ${checked ? 'bg-indigo-700 bg-opacity-75 text-white' : 'bg-white'}
                                                                     relative border border-2 rounded-lg shadow-md px-5 py-4 
                                                                     cursor-pointer flex focus:outline-none`

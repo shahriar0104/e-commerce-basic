@@ -16,12 +16,12 @@ const CartItemShow = () => {
   return (
       <div className="flow-root">
           <ul role="presentation" className="-my-6 divide-y divide-gray-200">
-              {cartItemList.map((cartItem) => (
-                  <li key={cartItem.id} className="py-6 flex">
+              {[...cartItemList.keys()].map((cartItemKey) => (
+                  <li key={cartItemKey} className="py-6 flex">
                       <div
                           className="flex-shrink-0 w-24 h-24 border border-gray-200 rounded-md overflow-hidden">
                           <img
-                              src={cartItem.image}
+                              src={cartItemList.get(cartItemKey).image}
                               alt="Not Found"
                               className="w-full h-full object-center object-fill"
                           />
@@ -32,9 +32,10 @@ const CartItemShow = () => {
                               <div
                                   className="flex justify-between text-base font-medium text-gray-900">
                                   <h3>
-                                      <a href={cartItem.href}>{cartItem.title}</a>
+                                      <a href={cartItemList.get(cartItemKey).href}>{cartItemList.get(cartItemKey).title}</a>
                                   </h3>
-                                  <p className="ml-4">${(cartItem.price * getNumOfSpecificItemAddedInCart(cartItem.id)).toFixed(2)}</p>
+                                  <p className="ml-4">${(cartItemList.get(cartItemKey).price
+                                      * getNumOfSpecificItemAddedInCart(cartItemKey)).toFixed(2)}</p>
                               </div>
                               {/*<p className="mt-1 text-sm text-gray-500">{product.color}</p>*/}
                           </div>
@@ -46,18 +47,18 @@ const CartItemShow = () => {
                                   <input type="number"
                                          className="cart-quantity w-6/12 py-2 text-sm text-gray-900 bg-gray-200 rounded-md pl-2
                                                     focus:outline-none focus:bg-white focus:ring-indigo-500 focus:ring-2"
-                                         value={cartItem.quantity}
-                                         onChange={event => onChangeQuantity(event, cartItem)}/>
+                                         value={cartItemList.get(cartItemKey).quantity}
+                                         onChange={event => onChangeQuantity(event, cartItemList.get(cartItemKey))}/>
 
                                   <span className="absolute flex flex-col justify-center items-center inset-y-0 left-8 sm:left-10 lg:left-12 pl-2">
-                                        <button disabled={!isProductAvailable(cartItem.id)}
+                                        <button disabled={!isProductAvailable(cartItemKey)}
                                                 onClick={(event) => {
                                                     event.preventDefault();
-                                                    updateCart(cartItem, true, true);
+                                                    updateCart(cartItemList.get(cartItemKey), true, true);
                                                 }}
                                                 // onClick={() => onChangeQuantity(Number(cartItem.quantity), cartItem, true, true)}
                                                 className={classNames(
-                                                    isProductAvailable(cartItem.id) ? 'hover:text-indigo-600' : 'hover:text-gray-600',
+                                                    isProductAvailable(cartItemKey) ? 'hover:text-indigo-600' : 'hover:text-gray-600',
                                                     'focus:outline-none focus:shadow-outline'
                                                 )}>
                                           <svg fill="none"
@@ -71,14 +72,14 @@ const CartItemShow = () => {
                                           </svg>
                                         </button>
 
-                                        <button disabled={cartItem.quantity === 1}
+                                        <button disabled={cartItemList.get(cartItemKey).quantity === 1}
                                                 onClick={(event) => {
                                                     event.preventDefault();
-                                                    updateCart(cartItem, true, false);
+                                                    updateCart(cartItemList.get(cartItemKey), true, false);
                                                 }}
                                                 // onClick={() => onChangeQuantity(Number(cartItem.quantity), cartItem, true,false)}
                                                 className={classNames(
-                                                    cartItem.quantity !== 1 ? 'hover:text-indigo-600' : 'hover:text-gray-600',
+                                                    cartItemList.get(cartItemKey).quantity !== 1 ? 'hover:text-indigo-600' : 'hover:text-gray-600',
                                                     'focus:outline-none focus:shadow-outline'
                                                 )}>
                                             <svg fill="none"
@@ -96,7 +97,7 @@ const CartItemShow = () => {
 
                               <div className="flex">
                                   <button type="button"
-                                          onClick={() => removeItemFromCart(cartItem.id)}
+                                          onClick={() => removeItemFromCart(cartItemKey)}
                                           className="font-medium text-indigo-600 hover:text-indigo-500">
                                       Remove
                                   </button>

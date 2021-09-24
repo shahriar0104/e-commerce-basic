@@ -1,98 +1,70 @@
 import {useContext} from "react";
 import {ShoppingListContext} from "../context/ShoppingContext";
+import {keyCartItemList} from "../constants/keys";
 
 const CartHelper = () => {
     const {productList, cartItemList, setCartItemList} = useContext(ShoppingListContext);
 
     const updateCart = (cartItem, isItemPresent, isIncrement) => {
-        let newProduct = {...cartItem};
-        if (!isItemPresent) {
+        if (!cartItemList.has(cartItem.id)) {
+            const newProduct = {...cartItem};
             newProduct.quantity = 1;
-            newProduct.availableItemCount = cartItem.rating['count'] - 1;
-            setCartItemList([...cartItemList, newProduct]);
-
+            newProduct.availableItemCount = newProduct.rating['count'] - 1;
+            cartItemList.set(newProduct.id, newProduct);
         } else {
-            let newCartItemList = [...cartItemList];
-
-            for (const [idx, item] of newCartItemList.entries()) {
-                if (item.id === cartItem.id) {
-                    newProduct = {...item};
-                    if (isIncrement) {
-                        if (newProduct.availableItemCount > 0) {
-                            newProduct.quantity += 1
-                            newProduct.availableItemCount -= 1;
-                        }
-                    } else {
-                        newProduct.quantity -= 1;
-                        newProduct.availableItemCount += 1;
-                    }
-                    if (newProduct.quantity === 0) newCartItemList.splice(idx, 1);
-                    else newCartItemList.splice(idx, 1, newProduct);
-                    break;
+            const newProduct = {...cartItemList.get(cartItem.id)};
+            if (isIncrement) {
+                if (newProduct.availableItemCount > 0) {
+                    newProduct.quantity += 1
+                    newProduct.availableItemCount -= 1;
                 }
+            } else {
+                newProduct.quantity -= 1;
+                newProduct.availableItemCount += 1;
             }
-
-            setCartItemList(newCartItemList);
+            if (newProduct.quantity === 0) cartItemList.delete(newProduct.id);
+            else cartItemList.set(newProduct.id, newProduct);
         }
+        setCartItemList(new Map(cartItemList));
+        saveCartItemsToLS(cartItemList);
     }
 
-    const removeItemFromCart = (cartItemId) => {
-        let newCartItemList = [...cartItemList];
-        for (const [idx, item] of newCartItemList.entries()) {
-            if (item.id === cartItemId) {
-                newCartItemList.splice(idx, 1);
-                break;
-            }
-        }
-        setCartItemList(newCartItemList);
+    const saveCartItemsToLS = (cartItems) => {
+      localStorage.setItem(keyCartItemList, JSON.stringify(Array.from(cartItems.entries())));
     }
 
-    const isProductAvailable = (cartItemId) => {
-        for (const cartItemListEl of cartItemList) {
-            if (cartItemListEl.id === cartItemId) {
-                if (cartItemListEl.availableItemCount > 0)
-                    return true;
-            }
-        }
-        return false;
+    const removeItemFromCart = (cartItemKey) => {
+        cartItemList.delete(cartItemKey);
+        setCartItemList(new Map(cartItemList));
+        cartItemList.size !== 0 ? saveCartItemsToLS(cartItemList) : localStorage.removeItem(keyCartItemList);
     }
 
-    const itemsLeft = (cartItemId) => {
-        for (const cartItemListEl of cartItemList) {
-            if (cartItemListEl.id === cartItemId) {
-                return cartItemListEl.availableItemCount;
-            }
-        }
-        return 0;
+    const isProductAvailable = (cartItemKey) => {
+        return cartItemList.get(cartItemKey).availableItemCount > 0;
     }
 
-    const isItemPresentInCart = (cartItemId) => {
-        for (const cartItemListEl of cartItemList) {
-            if (cartItemListEl.id === cartItemId) return true;
-        }
-        return false;
+    const itemsLeft = (cartItemKey) => {
+        return cartItemList.get(cartItemKey).availableItemCount;
     }
 
-    const getNumOfSpecificItemAddedInCart = (cartItemId) => {
-        for (const cartItemListEl of cartItemList) {
-            if (cartItemListEl.id === cartItemId) return cartItemListEl.quantity;
-        }
-        return 0;
+    const isItemPresentInCart = (cartItemKey) => {
+        return cartItemList.has(cartItemKey);
+    }
+
+    const getNumOfSpecificItemAddedInCart = (cartItemKey) => {
+        return cartItemList.get(cartItemKey).quantity;
     }
 
     const getTotalNumOfItemAddedInCart = () => {
         let totalItemInCart = 0;
-        for (const cartItemListEl of cartItemList) {
-            totalItemInCart += cartItemListEl.quantity
-        }
+        cartItemList.forEach((value) => totalItemInCart += value.quantity);
         return totalItemInCart;
     }
 
     const allItemPriceAddedInCart = (cartItems) => {
         let totalPrice = 0;
-        for (const cartItemListEl of cartItems === undefined ? cartItemList : cartItems) {
-            totalPrice += (cartItemListEl.price * cartItemListEl.quantity);
-        }
+        if (cartItems === undefined) cartItems = new Map(cartItemList);
+        cartItems.forEach((value) => totalPrice += (value.price * value.quantity));
         return totalPrice.toFixed(2);
     }
 
@@ -103,33 +75,22 @@ const CartHelper = () => {
             if (quantity > productList[cartItem.id - 1].rating['count'] || !quantity)
                 event.preventDefault();
             else {
-                const cartItems = [...cartItemList];
-                for (const item of cartItems)
-                    if (item.id === cartItem.id) {
-                        item.quantity = Number(quantity);
-                        item.availableItemCount = item.rating['count'] - item.quantity;
-                    }
-                setCartItemList(cartItems);
+                const item = {...cartItem};
+                item.quantity = Number(quantity);
+                item.availableItemCount = item.rating['count'] - item.quantity;
+                cartItemList.set(item.id, item);
+                setCartItemList(new Map(cartItemList));
+                saveCartItemsToLS(cartItemList);
             }
         } catch (e) {
-            isIncrement ? (isItemPresent ? updateCart(cartItem, true, true)
-                    : updateCart(cartItem, false, true))
+            isIncrement ?
+                (
+                    isItemPresent ? updateCart(cartItem, true, true)
+                    : updateCart(cartItem, false, true)
+                )
                 :
                 updateCart(cartItem, true, false);
         }
-    }
-
-    const generateProductQuantityArray = (cartItemId) => {
-        for (const productListEl of productList) {
-            if (productListEl.id === cartItemId) {
-                let quantityArr = [];
-                for (let i = 1; i <= productListEl.rating['count']; i++) {
-                    quantityArr.push(i);
-                }
-                return quantityArr;
-            }
-        }
-        return [];
     }
 
     return {
@@ -142,7 +103,6 @@ const CartHelper = () => {
         getTotalNumOfItemAddedInCart,
         allItemPriceAddedInCart,
         onChangeQuantity,
-        generateProductQuantityArray,
     }
 }
 

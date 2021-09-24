@@ -37,12 +37,12 @@ const OrderSummary = () => {
                 <div className="mt-6 p-4 lg:p-8 bg-white rounded-lg shadow-lg border">
                     <div className="flow-root mb-8">
                         <ul role="presentation" className="-my-6 divide-y divide-gray-200">
-                            {cartItems.map((cartItem) => (
-                                <li key={cartItem.id} className="py-6 flex">
+                            {[...cartItems.keys()].map((cartItemKey) => (
+                                <li key={cartItemKey} className="py-6 flex">
                                     <div
                                         className="flex-shrink-0 w-24 h-24 border border-gray-200 rounded-md overflow-hidden">
                                         <img
-                                            src={cartItem.image}
+                                            src={cartItems.get(cartItemKey).image}
                                             alt="Not Found"
                                             className="w-full h-full object-center object-fill"
                                         />
@@ -53,14 +53,15 @@ const OrderSummary = () => {
                                             <div
                                                 className="flex justify-between text-base font-medium text-gray-900">
                                                 <h3>
-                                                    <a href={cartItem.href}>{cartItem.title}</a>
+                                                    <a href={cartItems.get(cartItemKey).href}>{cartItems.get(cartItemKey).title}</a>
                                                 </h3>
-                                                <p className="ml-4">${(cartItem.price * cartItem.quantity).toFixed(2)}</p>
+                                                <p className="ml-4">${(cartItems.get(cartItemKey).price *
+                                                    cartItems.get(cartItemKey).quantity).toFixed(2)}</p>
                                             </div>
                                         </div>
                                         <div
                                             className="mt-2 flex-1 flex items-center items-end justify-between text-sm">
-                                            <p className="text-gray-500">Qty {cartItem.quantity}</p>
+                                            <p className="text-gray-500">Qty {cartItems.get(cartItemKey).quantity}</p>
                                         </div>
                                     </div>
                                 </li>
@@ -106,7 +107,7 @@ const OrderSummary = () => {
                         </div>
 
                         <div className="mt-16 border-t flex justify-end">
-                            <Link to='/' className="font-bold text-indigo-600 mt-2">
+                            <Link to='/' replace className="font-bold text-indigo-600 mt-2">
                                 Continue Shopping<span><ArrowRightIcon
                                 className="animate-ping inline-block ml-2 h-4 w-4"
                                 aria-hidden="true"/></span>
