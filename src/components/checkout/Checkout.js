@@ -7,6 +7,7 @@ import CartItemShow from "../cart-item-show/CartItemShow";
 import emptyCart from "../../assets/images/empty-cart.png"
 import {keyCategoryList, keyProductList} from "../../constants/keys";
 import generateCategoryList from "../../helper/generateCategoryList";
+import InputField from "./InputField";
 
 const methods = [
     {
@@ -42,7 +43,6 @@ const Checkout = () => {
         setCartItemList,
         productList,
         setProductList,
-        setFilteredProducts
     } = useContext(ShoppingListContext);
     const {allItemPriceAddedInCart} = CartHelper();
     const [selected, setSelected] = useState(methods[0]);
@@ -55,11 +55,18 @@ const Checkout = () => {
     const history = useHistory();
 
     const inputChangeHandler = (event) => {
+        // if (event.target.name === 'phone') {
+        //     const pattern = "/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im";
+        //     const digits = (event.target.value).replace(/\D/g, "");
+        //     if (!pattern.match(digits)) {
+        //         event.preventDefault();
+        //         return;
+        //     }
+        // }
         setFormFields({...formFields, [event.target.name]: event.target.value});
     }
 
     const navigateToOrderSummary = (event) => {
-        console.log('event');
         event.preventDefault();
         setAfterOrderProducts();
 
@@ -78,11 +85,9 @@ const Checkout = () => {
         for (const cartItem of cartItemList)
             products[cartItem.id - 1].rating['count'] -= cartItem.quantity;
         setCartItemList([]);
-        localStorage.setItem(keyProductList, JSON.stringify(products));
         setProductList(products);
-        setFilteredProducts(products);
-        const categories = generateCategoryList(products);
-        localStorage.setItem(keyCategoryList, JSON.stringify(categories));
+        localStorage.setItem(keyProductList, JSON.stringify(products));
+        localStorage.setItem(keyCategoryList, JSON.stringify(generateCategoryList(products)));
     }
 
     return (
@@ -105,104 +110,30 @@ const Checkout = () => {
                                 <div>
                                     <h1 className="text-lg font-bold text-indigo-600">Contact Information</h1>
 
-                                    <div className="mt-6">
-                                        <label htmlFor="email" className="block text-gray-700 font-bold">Email
-                                            address</label>
-                                        <input required type="email" id="email" name="email"
-                                               autoComplete="email"
-                                               value={formFields.email} onChange={inputChangeHandler}
-                                               className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
-                                    focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
-                                    </div>
+                                    <InputField label="Email address" name="email"  isRequired={true} value={formFields.email} change={inputChangeHandler}/>
 
                                     <hr className="my-10 block border-1 bg-gray-500 h-0.1"/>
 
                                     <h1 className="text-lg font-bold text-indigo-600">Shipping Information</h1>
                                     <div className="flex flex-col lg:flex-row gap-4">
-                                        <div className="mt-4 flex-1">
-                                            <label htmlFor="firstName" className="block text-gray-700 font-bold">First
-                                                Name</label>
-                                            <input required type="text" id="firstName"
-                                                   name="firstName"
-                                                   value={formFields.firstName} onChange={inputChangeHandler}
-                                                   className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
-                                    focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
-                                        </div>
-
-                                        <div className="mt-4 flex-1">
-                                            <label htmlFor="lastName" className="block text-gray-700 font-bold">Last
-                                                Name</label>
-                                            <input type="text" id="lastName" name="lastName"
-                                                   value={formFields.lastName} onChange={inputChangeHandler}
-                                                   className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
-                                    focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
-                                        </div>
+                                        <InputField label="First Name" name="firstName" isRequired={true} value={formFields.firstName} change={inputChangeHandler}/>
+                                        <InputField label="Last Name" name="lastName"  isRequired={false} value={formFields.lastName} change={inputChangeHandler}/>
                                     </div>
 
-                                    <div className="mt-4 flex-1">
-                                        <label htmlFor="company"
-                                               className="block text-gray-700 font-bold">Company</label>
-                                        <input type="text" id="company" name="company"
-                                               value={formFields.company} onChange={inputChangeHandler}
-                                               className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
-                                    focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
-                                    </div>
+                                    <InputField label="Company" name="company"  isRequired={false} value={formFields.company} change={inputChangeHandler}/>
+                                    <InputField label="Address" name="address" isRequired={true} value={formFields.address} change={inputChangeHandler}/>
 
-                                    <div className="mt-4 flex-1">
-                                        <label htmlFor="address"
-                                               className="block text-gray-700 font-bold">Address</label>
-                                        <input required type="text" id="address" name="address"
-                                               value={formFields.address} onChange={inputChangeHandler}
-                                               className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
-                                    focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+                                    <div className="flex flex-col lg:flex-row gap-4">
+                                        <InputField label="City" name="city" isRequired={true} value={formFields.city} change={inputChangeHandler}/>
+                                        <InputField label="Country" name="country" isRequired={true} value={formFields.country} change={inputChangeHandler}/>
                                     </div>
 
                                     <div className="flex flex-col lg:flex-row gap-4">
-                                        <div className="mt-4 flex-1">
-                                            <label htmlFor="city" className="block text-gray-700 font-bold">City</label>
-                                            <input required type="text" id="city" name="city"
-                                                   value={formFields.city} onChange={inputChangeHandler}
-                                                   className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
-                                    focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
-                                        </div>
-
-                                        <div className="mt-4 flex-1">
-                                            <label htmlFor="country"
-                                                   className="block text-gray-700 font-bold">Country</label>
-                                            <input required type="text" id="country" name="country"
-                                                   value={formFields.country} onChange={inputChangeHandler}
-                                                   className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
-                                    focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
-                                        </div>
+                                        <InputField label="Province" name="province" isRequired={false} value={formFields.province} change={inputChangeHandler}/>
+                                        <InputField label="Postal Code" name="postalCode" isRequired={false} value={formFields.postalCode} change={inputChangeHandler}/>
                                     </div>
 
-                                    <div className="flex flex-col lg:flex-row gap-4">
-                                        <div className="mt-4 flex-1">
-                                            <label htmlFor="province"
-                                                   className="block text-gray-700 font-bold">Province</label>
-                                            <input type="text" id="province" name="province"
-                                                   value={formFields.province} onChange={inputChangeHandler}
-                                                   className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
-                                                              focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
-                                        </div>
-
-                                        <div className="mt-4 flex-1">
-                                            <label htmlFor="postalCode" className="block text-gray-700 font-bold">Postal
-                                                code</label>
-                                            <input type="text" id="postalCode" name="postalCode"
-                                                   value={formFields.postalCode} onChange={inputChangeHandler}
-                                                   className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
-                                    focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-4 flex-1">
-                                        <label htmlFor="phone" className="block text-gray-700 font-bold">Phone</label>
-                                        <input required type="tel" id="phone" name="phone"
-                                               value={formFields.phone} onChange={inputChangeHandler}
-                                               className="mt-1 rounded border shadow bg-white w-full py-2 px-3 text-gray-700
-                                    focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
-                                    </div>
+                                    <InputField label="Phone" name="phone" isRequired={true} value={formFields.phone} change={inputChangeHandler}/>
 
                                     <hr className="my-10 block border-1 bg-gray-500 h-0.1"/>
 
@@ -217,15 +148,12 @@ const Checkout = () => {
                                                             key={plan.name}
                                                             value={plan}
                                                             className={({active, checked}) =>
-                                                                `${
-                                                                    active
+                                                                `${active
                                                                         ? 'ring-2 ring-offset-2 ring-offset-indigo-300 ring-white ring-opacity-60'
-                                                                        : ''
-                                                                }
-                                            ${
-                                                                    checked ? 'bg-indigo-700 bg-opacity-75 text-white' : 'bg-white'
-                                                                }
-                                            relative border border-2 rounded-lg shadow-md px-5 py-4 cursor-pointer flex focus:outline-none`
+                                                                        : ''}
+                                                                ${checked ? 'bg-indigo-700 bg-opacity-75 text-white' : 'bg-white'}
+                                                                    relative border border-2 rounded-lg shadow-md px-5 py-4 
+                                                                    cursor-pointer flex focus:outline-none`
                                                             }>
                                                             {({active, checked}) => (
                                                                 <>
@@ -245,9 +173,9 @@ const Checkout = () => {
                                                                                     className={`inline ${
                                                                                         checked ? 'text-sky-100' : 'text-gray-500'
                                                                                     }`}>
-                                                                <span>
-                                                                  {plan.time}
-                                                                </span>
+                                                                                    <span>
+                                                                                      {plan.time}
+                                                                                    </span>
                                                                                     <span
                                                                                         className="block mt-5 font-bold">${plan.price}</span>
                                                                                 </RadioGroup.Description>
@@ -272,7 +200,7 @@ const Checkout = () => {
 
                                 <div>
                                     <h1 className="text-lg font-bold text-indigo-600">Order Summary</h1>
-                                    <div className="mt-6 p-4 lg:p-8 bg-white rounded-lg shadow-lg border">
+                                    <div className="mt-4 p-4 lg:p-8 bg-white rounded-lg shadow-lg border">
 
                                         <CartItemShow/>
 

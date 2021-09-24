@@ -13,9 +13,10 @@ const CartHelper = () => {
 
         } else {
             let newCartItemList = [...cartItemList];
-            for (let i = 0; i < newCartItemList.length; i++) {
-                if (newCartItemList[i].id === cartItem.id) {
-                    newProduct = {...newCartItemList[i]};
+
+            for (const [idx, item] of newCartItemList.entries()) {
+                if (item.id === cartItem.id) {
+                    newProduct = {...item};
                     if (isIncrement) {
                         if (newProduct.availableItemCount > 0) {
                             newProduct.quantity += 1
@@ -25,20 +26,21 @@ const CartHelper = () => {
                         newProduct.quantity -= 1;
                         newProduct.availableItemCount += 1;
                     }
-                    if (newProduct.quantity === 0) newCartItemList.splice(i, 1);
-                    else newCartItemList.splice(i, 1, newProduct);
+                    if (newProduct.quantity === 0) newCartItemList.splice(idx, 1);
+                    else newCartItemList.splice(idx, 1, newProduct);
                     break;
                 }
             }
+
             setCartItemList(newCartItemList);
         }
     }
 
     const removeItemFromCart = (cartItemId) => {
         let newCartItemList = [...cartItemList];
-        for (let i = 0; i < newCartItemList.length; i++) {
-            if (newCartItemList[i].id === cartItemId) {
-                newCartItemList.splice(i, 1);
+        for (const [idx, item] of newCartItemList.entries()) {
+            if (item.id === cartItemId) {
+                newCartItemList.splice(idx, 1);
                 break;
             }
         }

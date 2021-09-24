@@ -12,17 +12,16 @@ const ProductList = () => {
     const {updateCart, isProductAvailable, isItemPresentInCart, getNumOfSpecificItemAddedInCart} = CartHelper();
     const [selectedCategory, setSelectedCategory] = useState('All');
     const inputSearchRef = useRef('');
-    console.log('RENDERING...');
 
     const searchAndFilterProducts = (category) => {
         if (category !== undefined) setSelectedCategory(category);
-        if (category === undefined) category = selectedCategory;
+        else category = selectedCategory;
 
         let products = [];
         const inputValue = inputSearchRef.current.value;
         for (const filteredProductsEl of productList) {
             if ((filteredProductsEl.title).toLowerCase().includes(inputValue.toLowerCase()))
-                if (category === 'All' || category === undefined) products.push(filteredProductsEl);
+                if (category === 'All') products.push(filteredProductsEl);
                 else if (category === filteredProductsEl.category) products.push(filteredProductsEl);
         }
         setFilteredProducts(products);

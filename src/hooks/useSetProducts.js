@@ -5,7 +5,8 @@ import {ShoppingListContext} from "../context/ShoppingContext";
 
 
 const useSetProducts = () => {
-    const {productList, setProductList, filteredProducts, setFilteredProducts} = useContext(ShoppingListContext);
+    const {productList, setProductList} = useContext(ShoppingListContext);
+    const [filteredProducts, setFilteredProducts] = useState([]);
     const [categoryList, setCategoryList] = useState([]);
     const [loader, setLoader] = useState(false);
 
