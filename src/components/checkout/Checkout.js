@@ -54,6 +54,13 @@ const Checkout = () => {
     const history = useHistory();
 
     const inputChangeHandler = (event) => {
+        if (event.target.name === 'phone') {
+            const phoneNum = event.target.value;
+            const pattern = new RegExp(/^[0-9\b+#*]+$/);
+            if (phoneNum !== '' && !pattern.test(phoneNum)) {
+                return event.preventDefault();
+            }
+        }
         setFormFields({...formFields, [event.target.name]: event.target.value});
     }
 
@@ -89,7 +96,7 @@ const Checkout = () => {
                 {
                     cartItemList.size === 0 ?
                         (
-                            <Redirect to="/" />
+                            <Redirect to="/"/>
                         ) :
 
                         (
