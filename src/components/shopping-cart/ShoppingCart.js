@@ -13,7 +13,7 @@ const ShoppingCart = () => {
 
     return (
         <Transition.Root show={openModal} as={Fragment}>
-            <Dialog as="div" className="fixed inset-0 overflow-hidden" onClose={setOpenModal}>
+            <Dialog as="div" className="ShoppingCart fixed inset-0 overflow-hidden" onClose={setOpenModal}>
                 <div className="absolute inset-0 overflow-hidden">
                     <Transition.Child
                         as={Fragment}
